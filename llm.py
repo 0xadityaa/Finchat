@@ -69,7 +69,7 @@ finnhub_client = finnhub.Client(os.getenv("FINNHUB_API_KEY"))
 # Creating a Company Profile Tool
 @tool
 def getStockData(symbol: str):
-    """Call the stock API to get the latest company profile data of the symbol for requested company and convert it to a stacked bar chart, returning pandas dataframe"""
+    """Call API to Get general information of a company. You can query by symbol, ISIN or CUSIP."""
     try:
         response = finnhub_client.company_profile2(symbol=symbol)
         return response
@@ -80,7 +80,7 @@ def getStockData(symbol: str):
 # Creating a Stock Recommendation Tool
 @tool
 def getStockRecommendation(symbol: str):
-    """Call the stock API to get the stock recommendation of the symbol for requested company"""
+    """Call the stock API to Get latest analyst recommendation trends for a company"""
     try:
         response = finnhub_client.recommendation_trends(symbol=symbol)
         print(response)

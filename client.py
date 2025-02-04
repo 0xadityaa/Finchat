@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 import json
-import re
 import pandas as pd
 
 def process_tool_data(tool_data):
@@ -10,13 +9,29 @@ def process_tool_data(tool_data):
     try:
         # Parse the JSON string into a Python object
         data = json.loads(tool_data)
-        # Convert to DataFrame for visualization
+        
+        # Debug print to see the data structure
+        print("Parsed tool data:", data)
+        
+        # Convert to DataFrame
         df = pd.DataFrame(data)
-        # Reformat data for plotting
+        
+        # Check if DataFrame has the required columns
+        required_columns = ['strongBuy', 'buy', 'hold', 'sell', 'strongSell', 'period']
+        if not all(col in df.columns for col in required_columns):
+            print(f"Missing columns. Available columns: {df.columns.tolist()}")
+            return None
+            
+        # Format period column
         df['period'] = pd.to_datetime(df['period']).dt.strftime('%Y-%m')
         df.set_index('period', inplace=True)
+        
+        print("Processed DataFrame:", df)
         return df
-    except (json.JSONDecodeError, KeyError):
+        
+    except (json.JSONDecodeError, KeyError, IndexError, AttributeError) as e:
+        print(f"Error processing tool data: {e}")
+        print(f"Tool data received: {tool_data}")
         return None
 
 # Set page config to change the title on the navbar
@@ -79,13 +94,17 @@ if prompt := st.chat_input("Type a message..."):
                 message_content = parsed_response.get("message", "")
                 tool_data = parsed_response.get("tool_data")
                 
-                # Try to process and display tool data first
-                df = process_tool_data(tool_data)
-                if df is not None:
-                    # Create a stacked bar chart with the tool data
-                    st.bar_chart(df[['strongBuy', 'buy', 'hold', 'sell', 'strongSell']])
-                    
-                # Display the message content
+                # Only process and show graph if valid tool data exists
+                if tool_data:
+                    df = process_tool_data(tool_data)
+                    if df is not None and not df.empty:
+                        try:
+                            print("Creating chart with columns:", df.columns)
+                            st.bar_chart(df[['strongBuy', 'buy', 'hold', 'sell', 'strongSell']])
+                        except Exception as e:
+                            print(f"Error creating chart: {e}")
+                
+                # Always display the message content
                 st.markdown(message_content)
                 
                 # Add assistant response to chat history
