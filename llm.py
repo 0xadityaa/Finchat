@@ -158,7 +158,7 @@ llm = AzureChatOpenAI(
     deployment_name=os.getenv("OPENAI_API_DEPLOYMENT"),
     model=os.getenv("OPENAI_API_MODEL"),
     temperature=0.8,
-    max_tokens=400
+    max_tokens=1000
 ).bind_tools(tools)
 
 class CustomState(TypedDict):

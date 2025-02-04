@@ -25,10 +25,15 @@ async def chat(request: PromptReq):
     tool_message = None
     for msg in output["messages"]:
         if isinstance(msg, ToolMessage):
-            tool_message = msg.content
+            # Check if this is a news API call by looking at the tool name
+            if msg.name == "getCompanyNews":
+                # Skip adding tool_data for news queries since it's already formatted in the LLM response
+                tool_message = None
+            else:
+                tool_message = msg.content
             break
 
-    # Return both the final message and tool message
+    # Return just the message for news queries, both message and tool data for others
     return {
         "message": output["messages"][-1].content,
         "tool_data": tool_message

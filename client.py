@@ -94,18 +94,26 @@ if prompt := st.chat_input("Type a message..."):
                 message_content = parsed_response.get("message", "")
                 tool_data = parsed_response.get("tool_data")
                 
-                # Only process and show graph if valid tool data exists
+                # Check if tool_data contains news data by attempting to parse it
                 if tool_data:
-                    df = process_tool_data(tool_data)
-                    if df is not None and not df.empty:
-                        try:
-                            print("Creating chart with columns:", df.columns)
-                            st.bar_chart(df[['strongBuy', 'buy', 'hold', 'sell', 'strongSell']])
-                        except Exception as e:
-                            print(f"Error creating chart: {e}")
-                
-                # Always display the message content
-                st.markdown(message_content)
+                    try:
+                        data = json.loads(tool_data)
+                        # If the data has 'summaries' key, it's from getCompanyNews
+                        if 'summaries' in data:
+                            # Only display the markdown formatted message from LLM
+                            st.markdown(message_content)
+                        else:
+                            # For other tools like stock recommendations, process and show charts
+                            df = process_tool_data(tool_data)
+                            if df is not None and not df.empty:
+                                st.bar_chart(df[['strongBuy', 'buy', 'hold', 'sell', 'strongSell']])
+                            st.markdown(message_content)
+                    except json.JSONDecodeError:
+                        # If tool_data isn't valid JSON, just show the message
+                        st.markdown(message_content)
+                else:
+                    # If no tool_data, just show the message
+                    st.markdown(message_content)
                 
                 # Add assistant response to chat history
                 st.session_state.messages.append({
