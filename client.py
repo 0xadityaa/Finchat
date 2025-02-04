@@ -4,22 +4,20 @@ import json
 import re
 import pandas as pd
 
-# Function to extract data from the text response
-def extract_data_from_text(text):
-    pattern = r"(\w+ \d{4}):\n\nStrong Buy: (\d+)\nBuy: (\d+)\nHold: (\d+)\nSell: (\d+)\nStrong Sell: (\d+)"
-    matches = re.findall(pattern, text)
-    data = []
-    for match in matches:
-        period, strong_buy, buy, hold, sell, strong_sell = match
-        data.append({
-            "period": period,
-            "Strong Buy": int(strong_buy),
-            "Buy": int(buy),
-            "Hold": int(hold),
-            "Sell": int(sell),
-            "Strong Sell": int(strong_sell)
-        })
-    return data
+def process_tool_data(tool_data):
+    if not tool_data:
+        return None
+    try:
+        # Parse the JSON string into a Python object
+        data = json.loads(tool_data)
+        # Convert to DataFrame for visualization
+        df = pd.DataFrame(data)
+        # Reformat data for plotting
+        df['period'] = pd.to_datetime(df['period']).dt.strftime('%Y-%m')
+        df.set_index('period', inplace=True)
+        return df
+    except (json.JSONDecodeError, KeyError):
+        return None
 
 # Set page config to change the title on the navbar
 st.set_page_config(page_title="Stonks Chat 📈")
@@ -79,29 +77,22 @@ if prompt := st.chat_input("Type a message..."):
             try:
                 parsed_response = json.loads(full_response)
                 message_content = parsed_response.get("message", "")
+                tool_data = parsed_response.get("tool_data")
                 
-                # Extract data from the message content
-                data = extract_data_from_text(message_content)
-                
-                if data:
-                    # Create a DataFrame from the extracted data
-                    df = pd.DataFrame(data)
-                    df.set_index('period', inplace=True)
+                # Try to process and display tool data first
+                df = process_tool_data(tool_data)
+                if df is not None:
+                    # Create a stacked bar chart with the tool data
+                    st.bar_chart(df[['strongBuy', 'buy', 'hold', 'sell', 'strongSell']])
                     
-                    # Sort the DataFrame by the index (period) in descending order
-                    df = df.sort_index(ascending=False)
-                    
-                    # Display the stacked bar chart
-                    st.bar_chart(df)
-                    
-                    # Optionally, you can still display the original message content
-                    st.markdown(message_content)
-                else:
-                    # If no data was extracted, just display the original message
-                    st.markdown(message_content)
+                # Display the message content
+                st.markdown(message_content)
                 
                 # Add assistant response to chat history
-                st.session_state.messages.append({"role": "assistant", "content": message_content})
+                st.session_state.messages.append({
+                    "role": "assistant", 
+                    "content": message_content
+                })
             except json.JSONDecodeError:
                 st.error("Failed to parse server response as JSON.")
     else:
