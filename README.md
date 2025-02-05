@@ -1,8 +1,12 @@
-# Stonks Chat 📈 - AI-Powered Financial Assistant
-<img width="1280" alt="Screenshot 2025-01-31 at 12 20 10 PM" src="https://github.com/user-attachments/assets/5f7f96cc-b962-4e69-b5ff-ba025b54582c" />
+# Finchat - RAG app for real-time stock analysis and visualization
 
 ## 📖 Overview
-A conversational AI application that provides financial insights using stock market data from Finnhub and Azure OpenAI.
+A RAG (Retrieval Augmented Generation) based chat application capable of providing realtime stock quotes, market insights, stock news, historical earnings as well as creating a meaningful visualization of that data on the fly.
+
+
+<img width="1280" alt="Screenshot 2025-01-31 at 12 20 10 PM" src="https://github.com/user-attachments/assets/5f7f96cc-b962-4e69-b5ff-ba025b54582c" />
+<img width="1280" alt="image" src="https://github.com/user-attachments/assets/7e8a7c89-8b3f-41d4-8c2a-6fa0d48572b3" />
+
 
 #### Stack
 
@@ -13,7 +17,7 @@ A conversational AI application that provides financial insights using stock mar
 | [FinnHub](https://finnhub.io/)
 
 
-#### RAG Architecture
+#### App Architecture
 ![image](https://github.com/user-attachments/assets/c3df2abd-2885-4aab-8de3-6f0130829604)
 
 
@@ -73,10 +77,10 @@ streamlit run client.py
 
 3. **Sample Queries**:
 ```text
-Q. "Show me recommendation trends for AAPL"
-Q. "What's the current price of TSLA?"
-Q. "Summarize recent news for Microsoft"
-Q. "Display earnings history for Amazon"
+Q. "Show me recommendation trends for apple"
+Q. "What's the current price of tesla?"
+Q. "Summarize recent news for microsoft"
+Q. "Display earnings history for google"
 ```
 
 ## 🧩 Component Interaction
