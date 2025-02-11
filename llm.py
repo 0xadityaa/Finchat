@@ -83,10 +83,20 @@ def getStockRecommendation(symbol: str):
     """Call the stock API to Get latest analyst recommendation trends for a company"""
     try:
         response = finnhub_client.recommendation_trends(symbol=symbol)
-        print(response)
         return response
     except requests.exceptions.RequestException as e:
         print(f"Error fetching company recommendation data: {e}")
+        return None
+    
+# Creating a Company Insider Trade Info Tool
+@tool
+def getCompanyInsiderTrade(symbol: str):
+    """Call the stock API to get the insider transactions of the symbol for requested company"""
+    try:
+        response = finnhub_client.stock_insider_transactions(symbol=symbol)
+        return response
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching company insider trade data: {e}")
         return None
     
 # Creating a Stock Pice Tool
@@ -153,7 +163,7 @@ def getCompanyNews(symbol: str):
 
 
 # Initialize Azure OpenAI LLM 
-tools = [getStockData, getStockRecommendation, getCompanyNews, getStockPrice, getCompanyEarnings]
+tools = [getStockData, getStockRecommendation, getCompanyNews, getStockPrice, getCompanyEarnings, getCompanyInsiderTrade]
 llm = AzureChatOpenAI( 
     deployment_name=os.getenv("OPENAI_API_DEPLOYMENT"),
     model=os.getenv("OPENAI_API_MODEL"),

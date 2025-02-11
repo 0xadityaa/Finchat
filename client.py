@@ -10,24 +10,13 @@ def process_tool_data(tool_data):
         # Parse the JSON string into a Python object
         data = json.loads(tool_data)
         
-        # Debug print to see the data structure
-        print("Parsed tool data:", data)
-        
-        # Convert to DataFrame
-        df = pd.DataFrame(data)
-        
         # Check if DataFrame has the required columns
-        required_columns = ['strongBuy', 'buy', 'hold', 'sell', 'strongSell', 'period']
-        if not all(col in df.columns for col in required_columns):
-            print(f"Missing columns. Available columns: {df.columns.tolist()}")
+        if 'data' in data and isinstance(data['data'], list):
+            df = pd.DataFrame(data['data'])
+            return df
+        else:
+            print("Data key not found or data is not a list")
             return None
-            
-        # Format period column
-        df['period'] = pd.to_datetime(df['period']).dt.strftime('%Y-%m')
-        df.set_index('period', inplace=True)
-        
-        print("Processed DataFrame:", df)
-        return df
         
     except (json.JSONDecodeError, KeyError, IndexError, AttributeError) as e:
         print(f"Error processing tool data: {e}")
@@ -106,7 +95,10 @@ if prompt := st.chat_input("Type a message..."):
                             # For other tools like stock recommendations, process and show charts
                             df = process_tool_data(tool_data)
                             if df is not None and not df.empty:
-                                st.bar_chart(df[['strongBuy', 'buy', 'hold', 'sell', 'strongSell']])
+                                if 'strongBuy' in df.columns:
+                                    st.bar_chart(df[['strongBuy', 'buy', 'hold', 'sell', 'strongSell']])
+                                else:
+                                    st.dataframe(df)
                             st.markdown(message_content)
                     except json.JSONDecodeError:
                         # If tool_data isn't valid JSON, just show the message
