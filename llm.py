@@ -8,7 +8,7 @@ from typing_extensions import TypedDict
 from langgraph.graph.message import add_messages
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import tool
-import requests, finnhub, datetime, timedelta, json
+import requests, finnhub, datetime, json
 from langgraph.prebuilt import ToolNode, tools_condition
 import pandas as pd
 

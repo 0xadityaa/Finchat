@@ -37,7 +37,7 @@ def process_tool_data(tool_data):
 # Set page config to change the title on the navbar
 st.set_page_config(page_title="Stonks Chat 📈")
 
-URL = 'http://localhost:8000'
+URL = 'http://server:8000'
 
 st.title("🔍 Search Stonks")
 st.markdown(
