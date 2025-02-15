@@ -3,10 +3,8 @@
 ## 📖 Overview
 A RAG (Retrieval Augmented Generation) based chat application capable of providing realtime stock quotes, market insights, stock news, historical earnings as well as creating a meaningful visualization of that data on the fly.
 
-
 <img width="1280" alt="Screenshot 2025-01-31 at 12 20 10 PM" src="https://github.com/user-attachments/assets/5f7f96cc-b962-4e69-b5ff-ba025b54582c" />
 <img width="1280" alt="image" src="https://github.com/user-attachments/assets/7e8a7c89-8b3f-41d4-8c2a-6fa0d48572b3" />
-
 
 #### Stack
 
@@ -15,11 +13,10 @@ A RAG (Retrieval Augmented Generation) based chat application capable of providi
 | [LangGraph](https://langchain-ai.github.io/langgraph/)
 | [FastAPI](https://fastapi.tiangolo.com/)
 | [FinnHub](https://finnhub.io/)
-
+| [Docker](https://www.docker.com/)
 
 #### App Architecture
 ![image](https://github.com/user-attachments/assets/c3df2abd-2885-4aab-8de3-6f0130829604)
-
 
 Three core components work together:
 1. **`client.py`** - Streamlit frontend with chat interface
@@ -32,28 +29,18 @@ Three core components work together:
 - Company recommendation trends visualization
 - Earnings history and news summaries
 - Conversational AI with financial expertise
+- Dockerized application for easy deployment
 
 ## 🛠️ Local Setup
 
 ### Prerequisites
-- Python 3.12
-- Conda package manager
+- Docker and Docker Compose
 - API keys for [Finnhub](https://finnhub.io) and [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
 
 ### Installation
-```bash
-# Create conda environment
-conda create -y -p ./conda python=3.12
-conda activate ./.conda
+1. Clone the repository
+2. Create a `.env` file in the root directory with the following content:
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Create .env file
-touch .env
-```
-
-### Environment Variables (`.env`)
 ```ini
 OPENAI_API_DEPLOYMENT=your-deployment-name
 OPENAI_API_MODEL=your-model-name
@@ -63,17 +50,18 @@ OPENAI_API_KEY=your-openai-key
 FINNHUB_API_KEY=your-finnhub-key
 ```
 
+3. Build and run the Docker containers:
+
+```bash
+docker-compose up --build
+```
+
 ## 🚀 Usage
 
-1. **Start Server** (in separate terminal)
-```bash
-uvicorn server:app --reload
-```
+After running the Docker containers:
 
-2. **Start Client** 
-```bash
-streamlit run client.py
-```
+1. Access the Streamlit frontend at `http://localhost:8502`
+2. The FastAPI backend will be available at `http://localhost:8000`
 
 3. **Sample Queries**:
 ```text
@@ -106,6 +94,16 @@ Q. "Display earnings history for google"
   - `getStockPrice`: Real-time quotes
   - `getCompanyEarnings`: Historical performance
 
-## 📄 License
+## 🐳 Docker Configuration
 
+The application is containerized using Docker for easy deployment and consistency across environments.
+
+1. **Dockerfile**: Defines the environment for both the server and client.
+2. **docker-compose.yml**: Orchestrates the multi-container setup:
+   - `server`: Runs the FastAPI backend
+   - `client`: Runs the Streamlit frontend
+
+To modify ports or environment variables, adjust the `docker-compose.yml` file.
+
+## 📄 License
 MIT License - Use responsibly with proper API key management. Always verify financial insights with professional advisors.
