@@ -3,19 +3,18 @@
 ## 📖 Overview
 A RAG (Retrieval Augmented Generation) based chat application capable of providing realtime stock quotes, market insights, stock news, historical earnings as well as creating a meaningful visualization of that data on the fly.
 
-<img width="1280" alt="Screenshot 2025-01-31 at 12 20 10 PM" src="https://github.com/user-attachments/assets/5f7f96cc-b962-4e69-b5ff-ba025b54582c" />
-<img width="1280" alt="image" src="https://github.com/user-attachments/assets/7e8a7c89-8b3f-41d4-8c2a-6fa0d48572b3" />
+<img width="1280" alt="Stock news chat with finchat" src="https://github.com/user-attachments/assets/5f7f96cc-b962-4e69-b5ff-ba025b54582c" />
+<img width="1280" alt="Stock Visualization chat with finchat" src="https://github.com/user-attachments/assets/7e8a7c89-8b3f-41d4-8c2a-6fa0d48572b3" />
 
-#### Stack
+## 📚 Stack
 
-  [Streamlit](https://streamlit.io/)
-| [Langchain](https://www.langchain.com/)
-| [LangGraph](https://langchain-ai.github.io/langgraph/)
-| [FastAPI](https://fastapi.tiangolo.com/)
-| [FinnHub](https://finnhub.io/)
-| [Docker](https://www.docker.com/)
+  **Frontend:** [Streamlit](https://streamlit.io/), [Pandas](https://pandas.pydata.org/)
+  
+  **Backend:** [FastAPI](https://fastapi.tiangolo.com/), [Docker](https://www.docker.com/), [FinnHub](https://finnhub.io/)
+  
+  **AI/LLM:** [LangChain](https://www.langchain.com/), [LangGraph](https://langchain-ai.github.io/langgraph/), [Azure OpenAI](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
 
-#### App Architecture
+## 🏛️ App Architecture
 ![image](https://github.com/user-attachments/assets/c3df2abd-2885-4aab-8de3-6f0130829604)
 
 Three core components work together:
