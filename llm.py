@@ -15,61 +15,77 @@ import pandas as pd
 # Load environment variables from .env file 
 load_dotenv() 
 
-# Define the system prompt for finance GPT
 SYSTEM_PROMPT = """
 You are Finance GPT, an AI-powered financial assistant designed to help users manage personal finances. 
 Your role is to provide insights on budgeting, savings, investments, debt management, and financial literacy.
 
+# Available Tools:
+- getStockData: Get company profile and general information
+- getStockRecommendation: Get analyst recommendations and trends
+- getCompanyNews: Get recent news articles from last 7 days
+- getStockPrice: Get real-time stock price and trading data
+- getCompanyEarnings: Get quarterly earnings history and estimates
+
 # Tone & Personality:
-- Friendly, professional, and approachable.
-- Clear and concise, avoiding unnecessary jargon.
-- Encouraging but realistic—no guaranteed financial predictions.
+- Friendly, professional, and approachable
+- Clear and concise, avoiding unnecessary jargon
+- Encouraging but realistic, no guaranteed financial predictions
 
 # Capabilities:
-- Explain budgeting techniques (e.g., 50/30/20 rule).
-- Provide debt management strategies (e.g., snowball vs. avalanche method).
-- Offer general investment insights without giving direct financial advice.
-- Guide users on savings plans and emergency funds.
-- Analyze and categorize transactions if user data is provided.
-- Educate users on personal finance concepts and common pitfalls.
+- Access real-time stock market data and analysis
+- Explain budgeting techniques (e.g., 50/30/20 rule)
+- Provide debt management strategies (e.g., snowball vs. avalanche)
+- Guide users on savings plans and emergency funds
+- Analyze market trends and company performance
+- Educate users on personal finance concepts
 
 # Limitations:
-- You are NOT a licensed financial advisor—always encourage users to seek professional advice.
-- Avoid speculative predictions or tax/legal compliance guidance.
-- Do not store or process sensitive financial data beyond a session.
+- NOT a licensed financial advisor—encourage seeking professional advice
+- Avoid speculative predictions or tax/legal compliance guidance
+- Do not store sensitive financial data beyond a session
 
 # User Engagement Rules:
-- Ask clarifying questions before giving financial guidance.
-- Adapt responses to user expertise level (beginner, intermediate, advanced).
-- Provide actionable steps with examples.
-- Encourage healthy financial habits (e.g., building emergency funds, reducing bad debt).
+- Ask clarifying questions before giving financial guidance
+- Adapt responses to user expertise level
+- Provide actionable steps with examples
+- Use available tools appropriately for market data requests
+- Encourage healthy financial habits
 
 # RESPONSE FORMATTING:
-- Always return response in proper Markdown Syntax.
-- Use bullet points for lists and headings for sections.
-- Use Bold, Italics, and Hyperlinks for emphasis and references.
+- Always return response in proper Markdown Syntax
+- Use bullet points for lists and headings for sections
+- Use Bold, Italics, and Hyperlinks for emphasis
+- Include tool-generated data in formatted responses
 """
 
 # Creating a Finnhub client to access stock data
 finnhub_client = finnhub.Client(os.getenv("FINNHUB_API_KEY"))
 
-# Creating a Weather Tool
-# @tool
-# def getWeather(city: str):
-#     """Call the weather API to get the weather of the city""""  
-#     url = f"http://api.weatherapi.com/v1/current.json?key=6f1d93acbcc0475eb09163014252901&q={city}&aqi=no"
-#     try:
-#         response = requests.get(url)
-#         response.raise_for_status()  # Raise an error for bad responses (4xx, 5xx)
-#         return response.json()
-#     except requests.exceptions.RequestException as e:
-#         print(f"Error fetching weather data: {e}")
-#         return None
-
 # Creating a Company Profile Tool
 @tool
 def getStockData(symbol: str):
-    """Call API to Get general information of a company. You can query by symbol, ISIN or CUSIP."""
+    """Get general company information and profile data from Finnhub API.
+
+    Args:
+        symbol (str): Stock symbol/ticker of the company (e.g. 'AAPL' for Apple Inc.)
+
+    Returns:
+        dict: Company profile data containing:
+            - country: Company's country of registration
+            - currency: Company's reporting currency
+            - exchange: Listed exchange
+            - ipo: IPO date
+            - marketCapitalization: Market capitalization value
+            - name: Company name
+            - phone: Company phone number
+            - shareOutstanding: Number of outstanding shares
+            - ticker: Stock symbol
+            - weburl: Company website URL
+            - logo: URL to company logo
+            - finnhubIndustry: Industry classification
+        
+    Returns None if API request fails.
+    """
     try:
         response = finnhub_client.company_profile2(symbol=symbol)
         return response
@@ -80,7 +96,23 @@ def getStockData(symbol: str):
 # Creating a Stock Recommendation Tool
 @tool
 def getStockRecommendation(symbol: str):
-    """Call the stock API to Get latest analyst recommendation trends for a company"""
+    """Get latest analyst recommendation trends for a company from Finnhub API.
+
+    Args:
+        symbol (str): Stock symbol/ticker of the company (e.g. 'AAPL' for Apple Inc.)
+
+    Returns:
+        list[dict]: List of monthly recommendation trends with each dict containing:
+            - buy: Number of buy recommendations
+            - hold: Number of hold recommendations
+            - period: Time period of recommendations (YYYY-MM-DD)
+            - sell: Number of sell recommendations
+            - strongBuy: Number of strong buy recommendations
+            - strongSell: Number of strong sell recommendations
+            - symbol: Stock symbol
+
+    Returns None if API request fails.
+    """
     try:
         response = finnhub_client.recommendation_trends(symbol=symbol)
         print(response)
@@ -92,7 +124,24 @@ def getStockRecommendation(symbol: str):
 # Creating a Stock Pice Tool
 @tool
 def getStockPrice(symbol: str):
-    """Call the stock API to get the stock price of the symbol for requested company"""
+    """Get real-time stock price data from Finnhub API.
+
+    Args:
+        symbol (str): Stock symbol/ticker of the company (e.g. 'AAPL' for Apple Inc.)
+
+    Returns:
+        dict: Real-time stock price data containing:
+            - c: Current price
+            - d: Change
+            - dp: Percent change
+            - h: High price of the day
+            - l: Low price of the day
+            - o: Open price of the day
+            - pc: Previous close price
+            - t: Timestamp
+
+    Returns None if API request fails.
+    """
     try:
         response = finnhub_client.quote(symbol=symbol)
         return response
@@ -103,7 +152,24 @@ def getStockPrice(symbol: str):
 # Creating a Company Earnings History Tool
 @tool
 def getCompanyEarnings(symbol: str):
-    """Call the stock API to get the earnings history of the symbol for requested company"""
+    """Get quarterly earnings history and analyst estimates for a company from Finnhub API.
+
+    Args:
+        symbol (str): Stock symbol/ticker of the company (e.g. 'AAPL' for Apple Inc.)
+
+    Returns:
+        list[dict]: List of quarterly earnings reports with each dict containing:
+            - actual: Actual earnings per share (EPS)
+            - estimate: Estimated EPS by analysts
+            - period: Reporting period date (YYYY-MM-DD)
+            - quarter: Fiscal quarter (1-4)
+            - surprise: Difference between actual and estimated EPS
+            - surprisePercent: Percentage difference from estimate
+            - symbol: Stock symbol
+            - year: Fiscal year
+            
+    Returns None if API request fails.
+    """
     try:
         response = finnhub_client.company_earnings(symbol=symbol)
         return response
@@ -114,8 +180,26 @@ def getCompanyEarnings(symbol: str):
 # Creating a Company News Tools
 @tool
 def getCompanyNews(symbol: str):
-    """Fetch company news from the API and summarize it."""
-    
+    """Get recent news articles and summaries for a company from Finnhub API.
+
+    Args:
+        symbol (str): Stock symbol/ticker of the company (e.g. 'AAPL' for Apple Inc.)
+
+    Returns:
+        str: JSON-formatted string containing:
+            - summaries: Combined text of all news article summaries
+            - error: Error message if no news data is available or an error occurred
+            
+        News data includes articles from the last 7 days with fields:
+            - category: News category/type
+            - datetime: Unix timestamp of publication
+            - headline: Article headline
+            - summary: Article summary text
+            - url: Link to full article
+            - source: News source name
+            
+    Returns JSON error object if API request fails or no news data available.
+    """
     try:
         # Get current date and 7 days ago
         to_date = datetime.date.today()
