@@ -1,4 +1,4 @@
-# Finchat - RAG app for real-time stock analysis and visualization
+# Finchat
 
 ## 📖 Overview
 A RAG (Retrieval Augmented Generation) based chat application capable of providing realtime stock quotes, market insights, stock news, historical earnings as well as creating a meaningful visualization of that data on the fly.
