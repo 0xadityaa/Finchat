@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from langchain_openai import AzureChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, MessagesState, StateGraph, END
-from typing import Annotated
+from typing import Annotated, Optional, Dict, Any
 from typing_extensions import TypedDict
 from langgraph.graph.message import add_messages
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -56,6 +56,7 @@ Your role is to provide insights on budgeting, savings, investments, debt manage
 - Use bullet points for lists and headings for sections
 - Use Bold, Italics, and Hyperlinks for emphasis
 - Include tool-generated data in formatted responses
+- Only use recommendations tool if the user prompt SPECIFICALLY asks for it
 """
 
 # Creating a Finnhub client to access stock data
@@ -247,22 +248,37 @@ llm = AzureChatOpenAI(
 
 class CustomState(TypedDict):
     messages: Annotated[list, add_messages]
-    language: str
+    chart_data: Optional[Dict[str, Any]] = None
+    message_id: Optional[str] = None
 
 # Define a new graph
 workflow = StateGraph(CustomState)
 
 # Action taken by the home node
 def invoke_llm(state: CustomState):
+    # Get existing messages and state
+    messages = state.get("messages", [])
+    chart_data = state.get("chart_data", None)
+    message_id = state.get("message_id", None)
+    
+    # Create prompt with system message
     prompt_template = ChatPromptTemplate([
         ("system", SYSTEM_PROMPT),
         MessagesPlaceholder("messages")
     ])
-    prompt = prompt_template.invoke(state)
+    
+    # Create prompt with messages
+    prompt = prompt_template.invoke({"messages": messages})
+    
+    # Get response from LLM
     response = llm.invoke(prompt)
-    return {"messages": response}
-    # response = llm.invoke(state["messages"])
-    # return {"messages": response}
+    
+    # Return response with state
+    return {
+        "messages": response,
+        "chart_data": chart_data,
+        "message_id": message_id
+    }
 
 # Define a graph with a single node
 workflow.add_edge(START, "home")
@@ -272,7 +288,11 @@ workflow.add_node("tools", tool_node)
 workflow.add_conditional_edges("home", tools_condition, ["tools", END])
 workflow.add_edge("tools", "home")
 
-# Compile the workflow, specifying a checkpointer
-# that persists checkpoints to memory
-memory = MemorySaver()
-graph = workflow.compile(checkpointer=memory)
+# Function to create a fresh graph instance
+def create_graph():
+    """Create a fresh graph instance with a new memory saver"""
+    memory = MemorySaver()
+    return workflow.compile(checkpointer=memory)
+
+# For backwards compatibility
+graph = create_graph()
