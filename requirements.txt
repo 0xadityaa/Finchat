@@ -9,3 +9,4 @@ langchain
 langchain_openai
 langgraph
 finnhub-python
+altair
